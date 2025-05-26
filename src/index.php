@@ -260,10 +260,10 @@ function handleStatsAPI(): string
     ]);
 }
 
-function handle404(): string
+function handle404(): void
 {
     http_response_code(404);
-    return renderPage('404', ['title' => 'Page Not Found']);
+    renderPage('404', ['title' => 'Page Not Found']);
 }
 
 /**

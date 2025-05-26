@@ -11,7 +11,13 @@ services:
       - ./src:/var/www/html
       - ./config/apache:/etc/apache2/sites-available
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    environment:
+      - MYSQL_HOST=${MYSQL_HOST}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     networks:
       - lamp-network
 
@@ -19,32 +25,19 @@ services:
     image: mysql:8.0
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: tiger
-      MYSQL_DATABASE: judge_scoring
-      MYSQL_USER: app_user
-      MYSQL_PASSWORD: app_password
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
     healthcheck:
-      # test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      test: ["CMD", "mysql", "-h", "localhost", "-u", "app_user", "-papp_password", "-e", "SELECT 1"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "--user=root", "--password=${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
       timeout: 10s
       retries: 20
+      start_period: 30s
     volumes:
       - mysql_data:/var/lib/mysql
       - ./database:/docker-entrypoint-initdb.d
-    networks:
-      - lamp-network
-
-  phpmyadmin:
-    image: phpmyadmin/phpmyadmin
-    restart: always
-    ports:
-      - "8081:80"
-    environment:
-      PMA_HOST: db
-      PMA_USER: root
-      PMA_PASSWORD: tiger
-    depends_on:
-      - db
     networks:
       - lamp-network
 

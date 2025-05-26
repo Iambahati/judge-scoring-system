@@ -9,18 +9,29 @@ class Judge extends BaseModel
 {
     protected static string $table = 'judges';
     protected static string $primaryKey = 'judge_id';
-    
+
     /**
      * Get all active judges
      */
     public static function getActive(): array
     {
-        return self::all(
-            conditions: ['is_active' => 1],
-            orderBy: 'display_name ASC'
-        );
+        $sql = "SELECT 
+                j.id AS judge_id, 
+                j.username, 
+                j.display_name, 
+                j.email,
+                j.is_active,
+                j.created_at
+            FROM 
+                judges j
+            WHERE 
+                j.is_active = 1
+            ORDER BY 
+                j.display_name ASC";
+
+        return Database::query($sql)->fetchAll();
     }
-    
+
     /**
      * Create new judge with validation
      */
@@ -33,19 +44,19 @@ class Judge extends BaseModel
                 throw new InvalidArgumentException("Field '{$field}' is required");
             }
         }
-        
+
         // Check if username already exists
         if (self::usernameExists($data['username'])) {
             throw new InvalidArgumentException("Username '{$data['username']}' already exists");
         }
-        
+
         // Set default values
         $data['is_active'] = $data['is_active'] ?? 1;
         $data['created_at'] = date('Y-m-d H:i:s');
-        
+
         return self::create($data);
     }
-    
+
     /**
      * Check if username exists
      */
@@ -57,29 +68,26 @@ class Judge extends BaseModel
         );
         return $stmt->fetch()['count'] > 0;
     }
-    
+
     /**
      * Get judge's scoring progress
      */
     public static function getScoringProgress(int $judgeId): array
     {
-        $stmt = Database::query(
-            "SELECT 
-                j.judge_id,
+        $sql = "SELECT 
+                j.id as judge_id,
                 j.display_name,
-                COUNT(s.score_id) as scores_given,
+                COUNT(s.id) as scores_given,
                 (SELECT COUNT(*) FROM users WHERE is_active = 1) as total_participants,
-                ROUND((COUNT(s.score_id) / (SELECT COUNT(*) FROM users WHERE is_active = 1)) * 100, 2) as completion_percentage
+                ROUND((COUNT(s.id) / (SELECT COUNT(*) FROM users WHERE is_active = 1)) * 100, 2) as completion_percentage
             FROM judges j
-            LEFT JOIN scores s ON j.judge_id = s.judge_id
-            WHERE j.judge_id = ?
-            GROUP BY j.judge_id, j.display_name",
-            [$judgeId]
-        );
-        
-        return $stmt->fetch() ?: [];
+            LEFT JOIN scores s ON j.id = s.judge_id
+            WHERE j.id = ?
+            GROUP BY j.id, j.display_name";
+
+        return Database::query($sql, [$judgeId])->fetch() ?: [];
     }
-    
+
     /**
      * Get participants not yet scored by this judge
      */
@@ -97,7 +105,7 @@ class Judge extends BaseModel
             ORDER BY u.display_name ASC",
             [$judgeId]
         );
-        
+
         return $stmt->fetchAll();
     }
 }

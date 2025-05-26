@@ -10,7 +10,7 @@ class User extends BaseModel
 {
     protected static string $table = 'users';
     protected static string $primaryKey = 'user_id';
-    
+
     /**
      * Get all active participants
      */
@@ -21,7 +21,7 @@ class User extends BaseModel
             orderBy: 'display_name ASC'
         );
     }
-    
+
     /**
      * Create new participant with validation
      */
@@ -34,19 +34,19 @@ class User extends BaseModel
                 throw new InvalidArgumentException("Field '{$field}' is required");
             }
         }
-        
+
         // Check if username already exists
         if (self::usernameExists($data['username'])) {
             throw new InvalidArgumentException("Username '{$data['username']}' already exists");
         }
-        
+
         // Set default values using null coalescing operator
         $data['is_active'] = $data['is_active'] ?? 1;
         $data['created_at'] = date('Y-m-d H:i:s');
-        
+
         return self::create($data);
     }
-    
+
     /**
      * Check if username exists
      */
@@ -58,7 +58,7 @@ class User extends BaseModel
         );
         return $stmt->fetch()['count'] > 0;
     }
-    
+
     /**
      * Get participant with their scores and statistics
      */
@@ -79,10 +79,10 @@ class User extends BaseModel
             GROUP BY u.user_id",
             [$userId]
         );
-        
+
         return $stmt->fetch() ?: null;
     }
-    
+
     /**
      * Get participant's detailed scores with judge information
      */
@@ -99,10 +99,10 @@ class User extends BaseModel
             ORDER BY s.created_at DESC",
             [$userId]
         );
-        
+
         return $stmt->fetchAll();
     }
-    
+
     /**
      * Get current ranking for a participant
      */
@@ -122,30 +122,33 @@ class User extends BaseModel
             WHERE user_id = ?",
             [$userId]
         );
-        
+
         $result = $stmt->fetch();
         return $result ? (int)$result['ranking'] : 999;
     }
-    
+
     /**
      * Get participants for judge scoring interface
      */
     public static function getForJudgeScoring(int $judgeId): array
     {
-        $stmt = Database::query(
-            "SELECT 
-                u.*,
+        $sql = "SELECT 
+                u.id as user_id,
+                u.username,
+                u.display_name,
+                u.email,
+                u.bio,
+                u.is_active,
+                u.created_at,
                 s.score_value,
                 s.comments,
-                s.updated_at as score_updated_at,
-                CASE WHEN s.score_id IS NOT NULL THEN 1 ELSE 0 END as is_scored
+                s.created_at as score_updated_at,
+                CASE WHEN s.id IS NOT NULL THEN 1 ELSE 0 END as is_scored
             FROM users u
-            LEFT JOIN scores s ON u.user_id = s.user_id AND s.judge_id = ?
+            LEFT JOIN scores s ON u.id = s.user_id AND s.judge_id = ?
             WHERE u.is_active = 1
-            ORDER BY is_scored ASC, u.display_name ASC",
-            [$judgeId]
-        );
-        
-        return $stmt->fetchAll();
+            ORDER BY is_scored ASC, u.display_name ASC";
+
+        return Database::query($sql, [$judgeId])->fetchAll();
     }
 }
