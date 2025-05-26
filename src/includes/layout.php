@@ -4,106 +4,137 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $title ?? 'Judge Scoring System' ?></title>
-    
-    <!-- Bootstrap 5.3 CSS -->
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     
-    <!-- Custom CSS -->
     <style>
-        :root {
-            --primary-color: #2c3e50;
-            --secondary-color: #3498db;
-            --success-color: #27ae60;
-            --warning-color: #f39c12;
-            --danger-color: #e74c3c;
+        body {
+            background: linear-gradient(120deg, #e0eafc 0%, #cfdef3 100%);
+            min-height: 100vh;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            position: relative;
         }
         
-        body {
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        /* Animated background bubbles */
+        .background-bubbles {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            z-index: 0;
+            pointer-events: none;
+            overflow: hidden;
+        }
+        
+        .bubble {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.25;
+            animation: floatBubble 18s infinite linear;
+            background: linear-gradient(135deg, #3498db 0%, #8e44ad 100%);
+        }
+        
+        .bubble.b1 { width: 120px; height: 120px; left: 10vw; top: 60vh; animation-delay: 0s; }
+        .bubble.b2 { width: 80px; height: 80px; left: 70vw; top: 80vh; animation-delay: 3s; }
+        .bubble.b3 { width: 200px; height: 200px; left: 50vw; top: 10vh; animation-delay: 6s; }
+        .bubble.b4 { width: 100px; height: 100px; left: 80vw; top: 30vh; animation-delay: 9s; }
+        .bubble.b5 { width: 60px; height: 60px; left: 20vw; top: 20vh; animation-delay: 12s; }
+        
+        @keyframes floatBubble {
+            0% { transform: translateY(0) scale(1); opacity: 0.25; }
+            50% { transform: translateY(-60px) scale(1.1); opacity: 0.35; }
+            100% { transform: translateY(0) scale(1); opacity: 0.25; }
         }
         
         .navbar {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, #2c3e50 60%, #3498db 100%);
+            box-shadow: 0 2px 8px rgba(44,62,80,0.08);
+        }
+        
+        .navbar-brand {
+            font-weight: bold;
+            letter-spacing: 1px;
+            font-size: 1.4rem;
+        }
+        
+        .navbar-nav .nav-link {
+            transition: color 0.2s, background 0.2s;
+            border-radius: 6px;
+            margin-right: 0.5rem;
+        }
+        
+        .navbar-nav .nav-link.active, .navbar-nav .nav-link:hover {
+            background: rgba(255,255,255,0.12);
+            color: #fff !important;
         }
         
         .card {
-            border: none;
-            border-radius: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            background: rgba(255,255,255,0.7);
+            backdrop-filter: blur(8px) saturate(120%);
+            border-radius: 18px;
+            box-shadow: 0 8px 32px 0 rgba(31,38,135,0.10);
+            border: 1px solid rgba(255,255,255,0.18);
             transition: transform 0.2s, box-shadow 0.2s;
         }
         
         .card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 12px 32px 0 rgba(31,38,135,0.18);
         }
         
         .btn {
             border-radius: 8px;
             font-weight: 500;
             transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(52,152,219,0.08);
         }
         
-        .btn:hover {
-            transform: translateY(-1px);
+        .btn-primary, .btn-success, .btn-warning, .btn-danger {
+            color: #fff;
         }
         
-        .badge {
-            font-size: 0.75rem;
-            padding: 0.5rem 0.75rem;
-            border-radius: 20px;
+        .btn-primary {
+            background: linear-gradient(135deg, #3498db, #2c3e50);
+            border: none;
         }
         
-        .ranking-badge {
-            font-size: 1.1rem;
-            font-weight: bold;
-            min-width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
+        .btn-primary:hover {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
         }
         
-        .rank-1 {
-            background: linear-gradient(135deg, #ffd700, #ffed4e);
-            color: #333;
+        .footer {
+            background: linear-gradient(135deg, #2c3e50 60%, #3498db 100%);
+            color: #fff;
+            padding: 2rem 0;
+            margin-top: 3rem;
+            box-shadow: 0 -2px 8px rgba(44,62,80,0.08);
         }
         
-        .rank-2 {
-            background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
-            color: #333;
+        .footer a {
+            color: #fff;
+            opacity: 0.85;
+            transition: opacity 0.2s, text-decoration 0.2s;
         }
         
-        .rank-3 {
-            background: linear-gradient(135deg, #cd7f32, #daa520);
-            color: white;
+        .footer a:hover {
+            opacity: 1;
+            text-decoration: underline;
         }
         
-        .progress {
-            height: 10px;
-            border-radius: 10px;
-            background-color: #e9ecef;
-        }
-        
-        .progress-bar {
-            border-radius: 10px;
-            transition: width 0.6s ease;
+        .stats-card {
+            background: rgba(255,255,255,0.6);
+            border-radius: 16px;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.08);
         }
         
         .table {
-            background: white;
+            background: rgba(255,255,255,0.9);
             border-radius: 15px;
             overflow: hidden;
         }
         
         .table th {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            background: linear-gradient(135deg, #2c3e50, #3498db);
             color: white;
             border: none;
             font-weight: 600;
@@ -122,7 +153,7 @@
         }
         
         .table tbody tr:hover {
-            background-color: #f8f9fa;
+            background-color: #eaf6fb;
         }
         
         .score-input {
@@ -131,74 +162,63 @@
             font-weight: bold;
             border: 2px solid #dee2e6;
             border-radius: 8px;
+            background: rgba(255,255,255,0.8);
         }
         
         .score-input:focus {
-            border-color: var(--secondary-color);
-            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+            border-color: #3498db;
+            box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.18);
         }
         
         .alert {
             border: none;
             border-radius: 10px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
         }
         
-        .footer {
-            background: var(--primary-color);
-            color: white;
-            padding: 2rem 0;
-            margin-top: 3rem;
-        }
-        
-        .stats-card {
-            text-align: center;
-            padding: 1.5rem;
-        }
-        
-        .stats-number {
-            font-size: 2.5rem;
+        .ranking-badge {
+            font-size: 1.1rem;
             font-weight: bold;
-            color: var(--secondary-color);
+            min-width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(44,62,80,0.10);
         }
         
-        .loading {
-            display: none;
+        .rank-1 {
+            background: linear-gradient(135deg, #ffd700, #ffed4e);
+            color: #333;
         }
         
-        .loading.show {
-            display: block;
+        .rank-2 {
+            background: linear-gradient(135deg, #c0c0c0, #e8e8e8);
+            color: #333;
         }
         
-        .fade-in {
-            animation: fadeIn 0.5s ease-in;
+        .rank-3 {
+            background: linear-gradient(135deg, #cd7f32, #daa520);
+            color: white;
         }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* Mobile responsiveness */
+        /* Responsive improvements */
         @media (max-width: 768px) {
-            .container {
-                padding: 0 15px;
-            }
-            
-            .card {
-                margin-bottom: 1rem;
-            }
-            
-            .table-responsive {
-                border-radius: 15px;
-            }
-            
-            .stats-number {
-                font-size: 2rem;
-            }
+            .container { padding: 0 8px; }
+            .card { margin-bottom: 1rem; }
+            .table-responsive { border-radius: 15px; }
+            .stats-number { font-size: 2rem; }
         }
     </style>
-    
+    <!-- Animated background -->
+    <div class="background-bubbles">
+        <div class="bubble b1"></div>
+        <div class="bubble b2"></div>
+        <div class="bubble b3"></div>
+        <div class="bubble b4"></div>
+        <div class="bubble b5"></div>
+    </div>
     <?= $additionalHead ?? '' ?>
 </head>
 <body>
@@ -300,15 +320,13 @@
             <hr class="my-3">
             <p class="mb-0">
                 &copy; <?= date('Y') ?> Judge Scoring System. 
-                Demonstrating modern PHP 8.2+ features with Bootstrap 5.
             </p>
         </div>
     </footer>
 
-    <!-- Bootstrap 5.3 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
-    <!-- Custom JavaScript -->
+
     <script>
         // Update current time
         function updateTime() {

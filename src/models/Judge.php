@@ -4,7 +4,6 @@ require_once __DIR__ . '/../config/database.php';
 
 /**
  * Judge Model
- * Demonstrates PHP 8+ features and Active Record pattern
  */
 class Judge extends BaseModel
 {

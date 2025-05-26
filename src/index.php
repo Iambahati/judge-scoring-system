@@ -23,7 +23,7 @@ try {
         ['GET', '/'] => handleHomePage(),
         ['GET', '/scoreboard'] => handleScoreboard(),
         ['GET', '/judge'] => handleJudgePortal(),
-        ['POST', '/judge/score'] => handleJudgeScoring(),
+        ['POST', '/judge/score' ] => handleJudgeScoring(),
         ['GET', '/admin'] => handleAdminPanel(),
         ['POST', '/admin/judge'] => handleAddJudge(),
         ['POST', '/admin/user'] => handleAddUser(),
@@ -42,7 +42,7 @@ try {
 } catch (Exception $e) {
     $_SESSION['error'] = "An error occurred: " . $e->getMessage();
     
-    if ($_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
+    if (isset($_SERVER['HTTP_X_REQUESTED_WITH']) && $_SERVER['HTTP_X_REQUESTED_WITH'] === 'XMLHttpRequest') {
         http_response_code(500);
         echo json_encode(['error' => $e->getMessage()]);
     } else {

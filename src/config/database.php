@@ -14,8 +14,8 @@ class Database
     public function __construct(
         private readonly string $host = 'db',
         private readonly string $dbname = 'judge_scoring',
-        private readonly string $username = 'root',
-        private readonly string $password = 'rootpassword',
+        private readonly string $username = 'app_user',
+        private readonly string $password = 'app_password',
         private readonly string $charset = 'utf8mb4'
     ) {}
     
@@ -44,8 +44,8 @@ class Database
         try {
             $pdo = new PDO($dsn, $this->username, $this->password, $options);
             
-            // Set SQL mode for strict validation
-            $pdo->exec("SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_AUTO_CREATE_USER,NO_ENGINE_SUBSTITUTION'");
+            // Set SQL mode for strict validation (MySQL 8 compatible)
+            $pdo->exec("SET sql_mode = 'STRICT_TRANS_TABLES,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION'");
             
             return $pdo;
         } catch (PDOException $e) {
